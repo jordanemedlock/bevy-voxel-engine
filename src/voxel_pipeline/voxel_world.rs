@@ -63,6 +63,7 @@ impl Plugin for VoxelWorldPlugin {
                 usage: TextureUsages::STORAGE_BINDING | TextureUsages::COPY_DST,
                 view_formats: &[],
             },
+            TextureDataOrder::LayerMajor,
             &gh.texture_data.clone(),
         );
         let voxel_world = voxel_world.create_view(&TextureViewDescriptor::default());
@@ -101,9 +102,9 @@ impl Plugin for VoxelWorldPlugin {
         });
 
         let bind_group_layout =
-            render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("voxelization bind group layout"),
-                entries: &[
+            render_device.create_bind_group_layout(
+                Some("voxelization bind group layout"),
+                &[
                     BindGroupLayoutEntry {
                         binding: 0,
                         visibility: ShaderStages::VERTEX_FRAGMENT | ShaderStages::COMPUTE,
@@ -150,8 +151,8 @@ impl Plugin for VoxelWorldPlugin {
                         ty: BindingType::Sampler(SamplerBindingType::Filtering),
                         count: None,
                     },
-                ],
-            });
+                ]
+            );
 
         let bind_group = render_device.create_bind_group(
             None,
@@ -332,6 +333,7 @@ fn load_voxel_world_prepare(
                 usage: TextureUsages::STORAGE_BINDING | TextureUsages::COPY_DST,
                 view_formats: &[],
             },
+            TextureDataOrder::LayerMajor,
             &gh.texture_data,
         );
         voxel_data.voxel_world = voxel_world.create_view(&TextureViewDescriptor::default());

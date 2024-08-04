@@ -14,14 +14,12 @@ mod ui;
 
 fn main() {
     let mut app = App::new();
-    app.add_plugins((
-        DefaultPlugins,
-        ObjPlugin,
-        BevyVoxelEnginePlugin,
-        character::Character,
-        ui::UiPlugin,
-        fps_counter::FpsCounter,
-    ))
+    app.add_plugins(DefaultPlugins)
+    .add_plugins(ObjPlugin)
+    .add_plugins(BevyVoxelEnginePlugin)
+    .add_plugins(character::Character)
+    .add_plugins(ui::UiPlugin)
+    .add_plugins(fps_counter::FpsCounter)
     .add_systems(Startup, setup)
     .add_systems(
         Update,
@@ -35,9 +33,9 @@ fn main() {
         ),
     );
 
-    // let settings = bevy_mod_debugdump::render_graph::Settings::default();
-    // let dot = bevy_mod_debugdump::render_graph_dot(&app, &settings);
-    // std::fs::write("render_graph.dot", dot).unwrap();
+    let settings = bevy_mod_debugdump::render_graph::Settings::default();
+    let dot = bevy_mod_debugdump::render_graph_dot(&app, &settings);
+    std::fs::write("render_graph.dot", dot).unwrap();
 
     app.run();
 }
@@ -129,7 +127,7 @@ fn setup(
             CharacterEntity {
                 in_spectator: false,
                 grounded: false,
-                look_at: -character_transform.local_z(),
+                look_at: -Vec3::from(character_transform.local_z()),
                 up: Vec3::new(0.0, 1.0, 0.0),
             },
             CharacterPortals {
@@ -247,8 +245,8 @@ fn update_suzanne(time: Res<Time>, mut cube: Query<&mut Transform, With<Suzanne>
 
 fn shoot(
     mut commands: Commands,
-    mouse: Res<Input<MouseButton>>,
-    keyboard: Res<Input<KeyCode>>,
+    mouse: Res<ButtonInput<MouseButton>>,
+    keyboard: Res<ButtonInput<KeyCode>>,
     mut character: Query<(&Transform, &mut CharacterEntity)>,
 ) {
     let (transform, mut character_entity) = character.single_mut();
@@ -284,7 +282,7 @@ fn shoot(
         ));
     }
 
-    if keyboard.just_pressed(KeyCode::F) {
+    if keyboard.just_pressed(KeyCode::KeyF) {
         commands.spawn((
             Transform::from_translation(transform.translation),
             Particle {
@@ -303,11 +301,11 @@ fn shoot(
         ));
     }
 
-    if keyboard.just_pressed(KeyCode::P) {
+    if keyboard.just_pressed(KeyCode::KeyP) {
         character_entity.in_spectator = !character_entity.in_spectator;
     }
 
-    if keyboard.just_pressed(KeyCode::B) {
+    if keyboard.just_pressed(KeyCode::KeyB) {
         commands.spawn((
             Transform::from_translation(transform.translation),
             VoxelPhysics::new(
@@ -417,17 +415,17 @@ fn spawn_stuff(
 fn sand_spawner(
     mut sand_spawner: Query<(&mut Transform, &mut Box), With<SandSpawner>>,
     character_query: Query<&Transform, (With<CharacterEntity>, Without<SandSpawner>)>,
-    input: Res<Input<KeyCode>>,
+    input: Res<ButtonInput<KeyCode>>,
 ) {
     let character = character_query.single();
     let (mut sand_spawner, mut sand_material) = sand_spawner.single_mut();
 
     sand_spawner.translation = character.translation - character.local_z() * 10.0;
 
-    if input.pressed(KeyCode::R) {
+    if input.pressed(KeyCode::KeyR) {
         sand_material.material = 8;
         sand_material.flags = Flags::NONE;
-    } else if input.pressed(KeyCode::E) {
+    } else if input.pressed(KeyCode::KeyE) {
         sand_material.material = 100;
         sand_material.flags = Flags::SAND_FLAG | Flags::COLLISION_FLAG;
     } else {

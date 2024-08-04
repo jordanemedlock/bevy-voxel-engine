@@ -12,7 +12,6 @@ use bevy::{
     render::renderer::{RenderDevice, RenderQueue},
     utils::HashMap,
 };
-
 pub const VOXELS_PER_METER: f32 = 4.0;
 
 pub struct PhysicsPlugin;
@@ -93,7 +92,7 @@ pub fn insert_physics_data(
             .slice(..physics_data.buffer_length * 4);
 
         physics_buffer_slice.map_async(MapMode::Read, |_| {});
-        render_device.poll(wgpu::Maintain::Wait);
+        render_device.poll(wgpu::Maintain::wait());
 
         let data = physics_buffer_slice.get_mapped_range();
         let result: Vec<u32> = bytemuck::cast_slice(&data).to_vec();
@@ -295,12 +294,12 @@ pub fn extract_animation_data(
             voxel_uniforms.portals[i - 1] = ExtractedPortal {
                 transformation: second_matrix * first_matrix.inverse(),
                 position: first_pos,
-                normal: first_normal,
+                normal: Vec3::from(first_normal),
             };
             voxel_uniforms.portals[i] = ExtractedPortal {
                 transformation: first_matrix * second_matrix.inverse(),
                 position: second_pos,
-                normal: second_normal,
+                normal: Vec3::from(second_normal),
             };
         }
     }

@@ -3,7 +3,7 @@ use bevy::{
     prelude::*,
     render::{
         extract_component::{ExtractComponent, ExtractComponentPlugin},
-        render_asset::RenderAssets,
+        render_asset::{RenderAssetUsages, RenderAssets},
         render_graph::{self, NodeRunError, RenderGraphContext, SlotInfo, SlotType, SlotValue},
         render_resource::*,
         renderer::RenderContext,
@@ -43,6 +43,7 @@ fn add_render_attachments(
             TextureDimension::D2,
             &[0; 8],
             TextureFormat::Rgba16Float,
+            RenderAssetUsages::RENDER_WORLD
         );
         image.texture_descriptor.usage = TextureUsages::COPY_DST
             | TextureUsages::STORAGE_BINDING
@@ -52,6 +53,7 @@ fn add_render_attachments(
             TextureDimension::D2,
             &[0; 16],
             TextureFormat::Rgba32Float,
+            RenderAssetUsages::RENDER_WORLD
         );
         highp_image.texture_descriptor.usage = TextureUsages::COPY_DST
             | TextureUsages::STORAGE_BINDING

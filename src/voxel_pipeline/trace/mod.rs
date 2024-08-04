@@ -143,9 +143,9 @@ impl FromWorld for TracePipelineData {
 
         let trace_bind_group_layout = render_world
             .resource::<RenderDevice>()
-            .create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("trace bind group layout"),
-                entries: &[
+            .create_bind_group_layout(
+                Some("trace bind group layout"),
+                &[
                     BindGroupLayoutEntry {
                         binding: 0,
                         visibility: ShaderStages::FRAGMENT,
@@ -177,7 +177,7 @@ impl FromWorld for TracePipelineData {
                         count: None,
                     },
                 ],
-            });
+            );
 
         let trace_shader_handle =
             asset_server.load("embedded://bevy_voxel_engine/voxel_pipeline/trace/trace.wgsl");

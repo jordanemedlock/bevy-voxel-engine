@@ -68,9 +68,9 @@ impl Plugin for ComputeResourcesPlugin {
         });
 
         let bind_group_layout =
-            render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: Some("compute bind group layout"),
-                entries: &[
+            render_device.create_bind_group_layout(
+                Some("compute bind group layout"),
+                &[
                     BindGroupLayoutEntry {
                         binding: 0,
                         visibility: ShaderStages::COMPUTE,
@@ -102,7 +102,7 @@ impl Plugin for ComputeResourcesPlugin {
                         count: None,
                     },
                 ],
-            });
+            );
 
         let bind_group = render_device.create_bind_group(
             None,

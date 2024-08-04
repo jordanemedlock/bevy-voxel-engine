@@ -97,10 +97,11 @@ impl render_graph::Node for TraceNode {
                 resolve_target: None,
                 ops: Operations {
                     load: LoadOp::Load,
-                    store: true,
+                    store: StoreOp::Store,
                 },
             })],
             depth_stencil_attachment: None,
+            ..default()
         };
 
         {

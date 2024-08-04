@@ -1,7 +1,6 @@
 use bevy::{core_pipeline::fxaa::Fxaa, prelude::*};
 use bevy_voxel_engine::{
-    BevyVoxelEnginePlugin, BoxCollider, CollisionEffect, Edges, Flags, LoadVoxelWorld, Portal,
-    VoxelCameraBundle, VoxelPhysics,
+    BevyVoxelEnginePlugin, BoxCollider, CollisionEffect, Edges, Flags, LoadVoxelWorld, Portal, RenderGraphSettings, VoxelCameraBundle, VoxelPhysics
 };
 use std::f32::consts::PI;
 
@@ -11,6 +10,7 @@ fn main() {
         .add_plugins(BevyVoxelEnginePlugin)
         .add_systems(Startup, setup)
         .add_systems(Update, update)
+        .add_plugins(bevy_mod_debugdump::CommandLineArgs)
         .run();
 }
 
@@ -21,6 +21,7 @@ fn setup(
     mut commands: Commands,
     mut load_voxel_world: ResMut<LoadVoxelWorld>,
     mut _meshes: ResMut<Assets<Mesh>>,
+    mut render_graph_settings: ResMut<RenderGraphSettings>
 ) {
     // Voxel world
     *load_voxel_world = LoadVoxelWorld::File("assets/monu9.vox".to_string());
@@ -40,36 +41,10 @@ fn setup(
             projection: projection.clone(),
             ..default()
         },
-        VoxelPhysics::new(
-            Vec3::splat(0.0),
-            Vec3::ZERO, // gravity handeled in character.rs
-            CollisionEffect::None,
-        ),
-        BoxCollider {
-            half_size: IVec3::new(2, 4, 2),
-        },
         Fxaa::default(),
     ));
 
-    // portal pair
-    commands.spawn((
-        Portal,
-        Edges {
-            material: 23,
-            flags: Flags::ANIMATION_FLAG,
-            half_size: IVec3::new(0, 10, 7),
-        },
-        Transform::from_xyz(-5.0, 0.0, -5.0),
-    ));
-    commands.spawn((
-        Portal,
-        Edges {
-            material: 23,
-            flags: Flags::ANIMATION_FLAG,
-            half_size: IVec3::new(0, 10, 7),
-        },
-        Transform::from_xyz(-5.0, 0.0, 3.0),
-    ));
+    render_graph_settings.trace = false;
 }
 
 fn update(mut cube: Query<&mut Transform, With<Cube>>, time: Res<Time>) {

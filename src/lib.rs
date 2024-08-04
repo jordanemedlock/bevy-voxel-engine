@@ -1,6 +1,6 @@
 use bevy::{
     prelude::*,
-    render::{camera::CameraRenderGraph, primitives::Frustum, view::VisibleEntities},
+    render::{camera::CameraRenderGraph, primitives::Frustum, render_graph::{RenderSubGraph}, view::VisibleEntities},
 };
 use physics::PhysicsPlugin;
 pub use physics::VOXELS_PER_METER;
@@ -120,10 +120,14 @@ pub struct VoxelCameraBundle {
     pub trace_settings: TraceSettings,
 }
 
+#[derive(RenderSubGraph, Hash, Debug, Clone, Eq, PartialEq)]
+struct VoxelSubGraph;
+
 impl Default for VoxelCameraBundle {
     fn default() -> Self {
+        
         Self {
-            camera_render_graph: CameraRenderGraph::new("voxel"),
+            camera_render_graph: CameraRenderGraph::new(VoxelSubGraph),
             camera: Camera {
                 hdr: true,
                 ..default()

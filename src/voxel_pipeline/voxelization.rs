@@ -3,7 +3,7 @@ use crate::{Flags, RenderGraphSettings, VOXELS_PER_METER};
 
 use bevy::{
     asset::{load_internal_asset, Handle},
-    core_pipeline::{clear_color::ClearColorConfig, core_3d::Transparent3d},
+    core_pipeline::{core_3d::Transparent3d},
     ecs::system::{
         lifetimeless::{Read, SQuery, SRes},
         SystemParamItem,
@@ -105,10 +105,7 @@ fn setup(mut commands: Commands, mut images: ResMut<Assets<Image>>) {
                     order: -3 + i,
                     ..default()
                 },
-                camera_3d: Camera3d {
-                    clear_color: ClearColorConfig::None,
-                    ..default()
-                },
+                camera_3d: default(),
                 ..default()
             },
             VoxelizationCamera,
@@ -231,9 +228,9 @@ impl FromWorld for VoxelizationPipeline {
 
         let world_bind_group_layout = voxel_world_data.bind_group_layout.clone();
         let voxelization_bind_group_layout =
-            render_device.create_bind_group_layout(&BindGroupLayoutDescriptor {
-                label: None,
-                entries: &[
+            render_device.create_bind_group_layout(
+                None, 
+                &[
                     BindGroupLayoutEntry {
                         binding: 0,
                         visibility: ShaderStages::FRAGMENT,
@@ -262,8 +259,8 @@ impl FromWorld for VoxelizationPipeline {
                         ty: BindingType::Sampler(SamplerBindingType::NonFiltering),
                         count: None,
                     },
-                ],
-            });
+                ]
+            );
 
         VoxelizationPipeline {
             mesh_pipeline: world.resource::<MeshPipeline>().clone(),
@@ -428,13 +425,13 @@ struct SetVoxelWorldBindGroup<const I: usize>;
 
 impl<P: PhaseItem, const I: usize> RenderCommand<P> for SetVoxelWorldBindGroup<I> {
     type Param = SRes<VoxelData>;
-    type ViewWorldQuery = ();
-    type ItemWorldQuery = ();
+    type ViewQuery = ();
+    type ItemQuery = ();
 
     fn render<'w>(
         _item: &P,
         _view: (),
-        _entity: (),
+        _entity: Option<()>,
         query: SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
@@ -450,13 +447,13 @@ struct SetVoxelizationBindGroup<const I: usize>;
 
 impl<P: PhaseItem, const I: usize> RenderCommand<P> for SetVoxelizationBindGroup<I> {
     type Param = SQuery<Read<VoxelizationBindGroup>>;
-    type ViewWorldQuery = ();
-    type ItemWorldQuery = ();
+    type ViewQuery = ();
+    type ItemQuery = ();
 
     fn render<'w>(
         item: &P,
         _view: (),
-        _entity: (),
+        _entity: Option<()>,
         query: SystemParamItem<'w, '_, Self::Param>,
         pass: &mut TrackedRenderPass<'w>,
     ) -> RenderCommandResult {
