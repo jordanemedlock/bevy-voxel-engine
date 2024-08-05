@@ -3,12 +3,11 @@ use std::process::exit;
 use super::{TracePipelineData, ViewTraceUniformBuffer};
 use crate::voxel_pipeline::{voxel_world::VoxelData, RenderGraphSettings};
 use bevy::{
-    prelude::*,
-    render::{
+    ecs::{archetype::ArchetypeEntity, component::{ComponentId, ComponentInfo}}, prelude::*, render::{
         render_graph::{self, SlotInfo, SlotType},
         render_resource::*,
         view::{ExtractedView, ViewTarget},
-    },
+    }
 };
 
 pub struct TraceNode {
@@ -51,7 +50,14 @@ impl render_graph::Node for TraceNode {
             return Ok(());
         }
 
-        let (target, trace_uniform_buffer) = match self.query.get_manual(world, view_entity) {
+        // for component_id in get_components_ids(world, &view_entity).unwrap()
+        // {
+        //     let component_info = component_id_to_component_info(world, component_id).unwrap();
+        //     println!("{}", extract_component_name(component_info));
+        // }
+
+
+        let (target, trace_uniform_buffer) = match self.query.get_manual(world) {
             Ok(result) => result,
             Err(err) => {
                 println!("Voxel camera missing component!: {}", err);
@@ -118,4 +124,27 @@ impl render_graph::Node for TraceNode {
 
         Ok(())
     }
+}
+
+
+/// gets an iterator component id from the world corresponding to your entity
+fn get_components_ids<'a>(world: &'a World, entity: &Entity) -> Option<impl Iterator<Item=ComponentId> + 'a>
+{
+    // components and entities are linked through archetypes
+    for archetype in world.archetypes().iter()
+    {
+        if archetype.entities().iter().map(ArchetypeEntity::id).find(|e| entity == e).is_some() { return Some(archetype.components()) }
+    }
+    None
+}
+
+fn component_id_to_component_info(world: &World, component_id: ComponentId) -> Option<&ComponentInfo>
+{
+    let components = world.components();
+    components.get_info(component_id)
+}
+
+fn extract_component_name(component_info: &ComponentInfo) -> &str
+{
+    component_info.name()
 }
